@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,6 +11,8 @@ import (
 	"regexp"
 	"time"
 )
+
+var beVerbose bool
 
 type tool struct {
 	Name         string
@@ -24,6 +27,12 @@ type tool struct {
 
 func main() {
 	rTools := regexp.MustCompile(`(?:tools\.)(.*)`)
+	flag.BoolVar(&beVerbose, "verbose", false, "Output verbose logs")
+	flag.Parse()
+
+	if beVerbose {
+		fmt.Println("Checking Toolforge tools...")
+	}
 
 	thisUser, userErr := user.Current()
 	if userErr != nil {
@@ -78,10 +87,14 @@ func main() {
 
 			if res.Status == "404 Not Found" {
 				// Didn't return a status code, assume OK
-				fmt.Println(toolName + ": Missing")
+				if beVerbose {
+					fmt.Println(toolName + ": Missing")
+				}
 			} else {
 				// Returned a status_code
-				fmt.Println(toolName + ": OK")
+				if beVerbose {
+					fmt.Println(toolName + ": OK")
+				}
 			}
 
 		}
